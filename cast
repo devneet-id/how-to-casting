@@ -1,0 +1,171 @@
+#!/usr/bin/env php
+<?php
+/*
+ * Act. 0 - The File Cast
+ * HOW TO CASTING
+ *
+ * From the silence of nothingness, echoes rise from the void.
+ * A journey begins — with runes at your side.
+ *
+ * Run this script using:
+ *   $ php cast
+ *   $ php cast grimoire
+ */
+require_once __DIR__ . '/vendor/autoload.php';
+
+
+
+/**
+ * I N V O C A T I O N
+ *
+ * Step 1 — Summon the runes:
+ * Import each module's manifest.
+ *
+ * Step 2 — Channel the energy:
+ * Initialize ether, essence, and entity.
+ *
+ * Note: Keep #sentinel markers if you're using Sentinel support.
+ */
+use Rune\Aether\Manifest as Aether;
+use Rune\Chanter\Manifest as Chanter;
+use Rune\Weaver\Manifest as Weaver;
+use Rune\Whisper\Manifest as Whisper;
+#sentinel-manifest
+
+Aether::ether()::essence()::entity();
+Chanter::ether()::essence()::entity();
+Weaver::ether()::essence()::entity();
+Whisper::ether()::essence()::entity();
+#sentinel-awaken
+
+
+
+/**
+ * I N C A N T A T I O N
+ *
+ * This is your working space.
+ * Use begin() and end() to define the active logic scope.
+ *
+ * Every cast is written as:
+ *   Chanter::cast(
+ *     arg: 'name --spell',     the cast and the spells it reads
+ *     echo: 'what it does',    shown under REGISTERED in 'php cast'
+ *     execute: function() {},  runs only when the cast is called
+ *   );
+ */
+Aether::begin();
+Chanter::begin();
+
+
+/* I · THE ARTS
+ * three simple casts, no spells
+ * $ php cast fire
+ * */
+Chanter::cast(
+  arg: 'fire',
+  echo: 'Shoot a fire ball.',
+  execute: function() {
+    Whisper::echo('You shot a {{color-danger}}Fire Ball..{{nl}}');
+  }
+);
+
+Chanter::cast(
+  arg: 'ice',
+  echo: 'Shoot a blizzard.',
+  execute: function() {
+    Whisper::echo('You shot a {{color-primary}}Blizzard..{{nl}}');
+  }
+);
+
+Chanter::cast(
+  arg: 'wind',
+  echo: 'Shoot a wind blast.',
+  execute: function() {
+    Whisper::echo('You shot a {{color-success}}Wind Blast..{{nl}}');
+  }
+);
+
+
+/* II · ENCHANT
+ * read spells, then cast another cast from code
+ * $ php cast enchant --art=fire --amount=3
+ * [i]INFO: --amount is optional, default 1
+ * */
+Chanter::cast(
+  arg: 'enchant --art --amount',
+  echo: 'Cast one art many times.',
+  execute: function() {
+    // read every spell first, an inner cast replaces them
+    $art = Chanter::spell('art');
+    $amount = (int) Chanter::spell('amount') ?: 1;
+
+    // unknown art -> tell the caster
+    if (!in_array($art, ['fire', 'ice', 'wind'])) {
+      Whisper::echo('Choose an art: {{color-info}}--art=fire|ice|wind{{nl}}');
+      return;
+    }
+
+    // the art is also the name of its cast
+    for ($i = 0; $i < $amount; $i++) {
+      Chanter::cast($art)();
+    }
+  }
+);
+
+
+/* III · RESPELL
+ * set spells from code, the next cast reads them
+ * $ php cast respell --total=10
+ * [i]INFO: --total is optional, default 5
+ * */
+Chanter::cast(
+  arg: 'respell --total',
+  echo: 'Cast random arts.',
+  execute: function() {
+    $arts = ['fire', 'ice', 'wind'];
+    $total = (int) Chanter::spell('total') ?: 5;
+
+    for ($i = 0; $i < $total; $i++) {
+      // pick a random art
+      shuffle($arts);
+
+      // respell: read by the next cast, not by this one
+      Chanter::spell('art', $arts[0]);
+      Chanter::spell('amount', 1);
+
+      Chanter::cast('enchant')();
+    }
+  }
+);
+
+
+/* IV · WITH NAME
+ * ask the caster, then chain the casts above
+ * $ php cast with-name
+ * */
+Chanter::cast(
+  arg: 'with-name',
+  echo: 'Ask a name, then cast for it.',
+  execute: function() {
+    $name = Whisper::call('Tell me your name: ');
+    if (!$name) return;
+
+    Whisper::echo("In the name of $name{{nl}}");
+    Chanter::cast('respell --total=10')();
+
+    $again = Whisper::call('Want a second cast? [y/n]: ');
+    if ($again == 'y') {
+      Chanter::cast('respell --total=30')();
+    } else {
+      Whisper::echo('All casts complete.{{nl}}');
+    }
+  }
+);
+
+
+// Every cast is a door,
+// open them one by one.
+
+#sentinel-codex
+Chanter::end();
+Aether::end();
